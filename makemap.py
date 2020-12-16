@@ -15,13 +15,10 @@ import keyboard
 #  - minimises its own command prompt window
 # Kevin Higgins, 15/12/20
 
-# TODO actually paths should be with slashes, backslashes added where needed with string.replace
-
 def win_format(str):
-	return str.replace("/", "\\") # double backslashes for paths, as Windows demands backslashes which need to be escaped
+	return str.replace("/", "\\") # double backslashes for paths, as Windows demands backslashes which need a preceding backslash escape code
 
-# this is a script for Windows but I use standard slashes in the paths for consistency here when defining them
-# most will actually be converted to using backslashes with calls to win_format in the parameter list for batch_template.substitute(..)
+# most of these actually get converted to using backslashes via calls to win_format(..) in the parameter list for batch_template.substitute(..)
 wad_names = ["C:/Users/Kevin/Programs/Quake Stuff/TrenchBroom/Textures.wad"] # add more to the list if desired
 wad_path = "" # THIS IS FUNCTIONAL and can be used to prefix any path or partial path to the texts in wad_names, but it can also be simply kept blank and the entire path kept in wad_names
 		# if you prefer to keep wads in various locations
