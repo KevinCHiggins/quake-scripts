@@ -21,7 +21,7 @@ def win_format(str):
 # most of these actually get converted to using backslashes via calls to win_format(..) in the parameter list for batch_template.substitute(..)
 wad_names = ["C:/Users/Kevin/Programs/Quake Stuff/TrenchBroom/Textures.wad"] # add more to the list if desired
 wad_path = "" # THIS IS FUNCTIONAL and can be used to prefix any path or partial path to the texts in wad_names, but it can also be simply kept blank and the entire path kept in wad_names
-		# if you prefer to keep wads in various locations
+		# e.g. if you store your wads in various locations
 map_path = "C:/Users/Kevin/Maps/"
 editor_path = "C:/Users/Kevin/Programs/Quake Stuff/TrenchBroom/"
 tools_path = "C:/Users/Kevin/Programs/Quake Stuff/TrenchBroom/ericw-tools/bin/"
