@@ -1,0 +1,18 @@
+// Game: Quake
+// Format: Standard
+// entity 0
+{
+"spawnflags" "0"
+"classname" "worldspawn"
+"wad" "C:\Users\Kevin\TrenchBroom\Textures.wad"
+"_point_format" "1"
+// brush 0
+{
+( 16 -80 -16 ) ( 16 -79 -16 ) ( 16 -80 -15 ) __TB_empty 0 0 0 1 1
+( 48 -48 -16 ) ( 48 -48 -15 ) ( 49 -48 -16 ) __TB_empty 0 0 0 1 1
+( 48 -80 -16 ) ( 49 -80 -16 ) ( 48 -79 -16 ) __TB_empty 0 0 0 1 1
+( 208 -48 48 ) ( 208 -47 48 ) ( 209 -48 48 ) __TB_empty 0 0 0 1 1
+( 208 16 0 ) ( 209 16 0 ) ( 208 16 1 ) __TB_empty 0 0 0 1 1
+( 80 -48 0 ) ( 80 -48 1 ) ( 80 -47 0 ) __TB_empty 0 0 0 1 1
+}
+}
