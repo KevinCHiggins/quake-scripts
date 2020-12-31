@@ -21,4 +21,6 @@ Makemap has the following dependencies:
 
 **Temple-maker** - see README.md in the ```temple-maker``` subdirectory of this repo
 
+**Arch** - see README.md in the ```arch``` subdirectory of this repo
+
 Kevin Higgins, 16/12/20
