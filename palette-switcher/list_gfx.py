@@ -3,6 +3,7 @@ from vgio.quake.lmp import Lmp
 # for simplicity, just process PAKs. This meets the MVP.
 
 import os
+import shutil
 
 
 dir_to_process = '/home/quake/pal_sw' 
@@ -22,26 +23,32 @@ def sort_into_dict_by_extension(collection, legend):
 
 # WHADDABOUT .MAP and .WAD?
 
-os.chdir(dir_to_process)
-dir_root_files = os.scandir(dir_to_process)
-pak_files = [i for i in dir_root_files if i.name[-4:].upper() == '.PAK']
-pak_entries_by_pak = {i.name : [] for i in pak_files}
-for pak_filename in pak_entries_by_pak:
-	with PakFile(dir_to_process +'/' + pak_filename, 'a') as pak_file:
-		pak_entries = [i for i in pak_file.namelist() if i[-4:] == '.bsp' or i[-4:] == '.lmp' or i[-4:] == '.spr' or i[-4:] == '.mdl']
-		pak_entries = sort_into_dict_by_extension(pak_entries, LEGEND)
-		for lmp_filename in [p for p in pak_entries['2d image lumps'] if not p == 'gfx/pop.lmp']: # seems like one non-standard file in PAK1.PAK?
-			print('Attempting to open {} from {}'.format(lmp_filename, pak_filename))
-			file_like_object = pak_file.open(lmp_filename)
-			print(file_like_object)
-			with Lmp.open(file_like_object, 'r') as lmp_file:
-				print('{} from {} in {}'.format(lmp_file.pixels[0], lmp_filename, pak_filename))
-				with Lmp.open('scratch_pad', 'w') as scratch_pad:
-					scratch_pad.width = lmp_file.width
-					scratch_pad.height = lmp_file.height
-					new_pixels = list(lmp_file.pixels)
-					new_pixels[0] = 255
-					scratch_pad.pixels = tuple(new_pixels)
-			# if in append mode, this corrupts the archive and it can't be read from
-			# pak_file.write('scratch_pad', 'lmp_filename')
-			print(pak_file.namelist())
+# extract each PAK to a temp directory with the same name as it (but without the extension)
+# 
+with os.scandir(dir_to_process) as dir_root_files:
+	os.chdir(dir_to_process)
+	pak_files = [i for i in dir_root_files if i.name[-4:].upper() == '.PAK']
+	pak_entries_by_pak = {i.name : [] for i in pak_files}
+	try:
+		for pak_filename in pak_entries_by_pak:
+			pak_path = dir_to_process +'/' + pak_filename
+			extracted_path = pak_path[:-4]
+			os.mkdir(extracted_path)
+			with PakFile(pak_path, 'a') as pak_file:
+				os.chdir(extracted_path)
+				pak_file.extractall()
+
+			with os.scandir(extracted_path + '/' + 'gfx') as gfx:
+				l = [entry for entry in gfx if entry.is_file() and not (entry.name == 'pop.lmp' or entry.name == 'colormap.lmp' or entry.name == 'palette.lmp') ]
+				print(l)
+				for lmp_dir_entry in l:
+					print('Opening {0}'.format(extracted_path + '/' + 'gfx' + '/'+ lmp_dir_entry.name))
+					with Lmp.open(extracted_path + '/' + 'gfx' + '/' + lmp_dir_entry.name) as lmp:
+						print(lmp.pixels[0])
+	except (FileExistsError, FileNotFoundError, AttributeError) as error:
+		print(error)
+	for pak_filename in pak_entries_by_pak:
+
+		path = dir_to_process + '/' + pak_filename[:-4]
+		if os.path.exists(path):
+			shutil.rmtree(path)
