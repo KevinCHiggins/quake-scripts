@@ -1,6 +1,12 @@
 from vgio.quake.pak import PakFile
 from vgio.quake.lmp import Lmp
-# for simplicity, just process PAKs. This meets the MVP.
+from vgio.quake.spr import Spr
+from vgio.quake.mdl import Mdl
+import map_pal
+# for simplicity, just extract PAK contents to temp dirs, process .lmp, .spr and .mdl
+# entries and move them into the usual Quake directory structure so
+# that they will then override what's in the PAKs. This meets the MVP
+# and lets us repeat the process on the same directory.
 
 import os
 import shutil
@@ -37,18 +43,40 @@ with os.scandir(dir_to_process) as dir_root_files:
 			with PakFile(pak_path, 'a') as pak_file:
 				os.chdir(extracted_path)
 				pak_file.extractall()
-
-			with os.scandir(extracted_path + '/' + 'gfx') as gfx:
-				l = [entry for entry in gfx if entry.is_file() and not (entry.name == 'pop.lmp' or entry.name == 'colormap.lmp' or entry.name == 'palette.lmp') ]
+			subdir = '/gfx/'
+			with os.scandir(extracted_path + subdir) as gfx:
+				l = [entry for entry in gfx if entry.is_file() and not (entry.name == 'pop.lmp' or entry.name == 'palette.lmp' or entry.name == 'colormap.lmp') ]
 				print(l)
-				for lmp_dir_entry in l:
-					print('Opening {0}'.format(extracted_path + '/' + 'gfx' + '/'+ lmp_dir_entry.name))
-					with Lmp.open(extracted_path + '/' + 'gfx' + '/' + lmp_dir_entry.name) as lmp:
-						print(lmp.pixels[0])
+				for lmp_entry in l:
+					print('Opening {0}'.format(extracted_path + subdir + lmp_entry.name))
+					with Lmp.open(extracted_path + subdir + lmp_entry.name) as lmp:
+						print('First pixel: {}'.format(lmp.pixels[0]))
+			subdir = '/progs/'
+			with os.scandir(extracted_path + subdir) as progs:
+				l = [entry for entry in progs if entry.is_file() and entry.name[-4:] == '.spr']
+				print(l)
+				for spr_entry in l:
+					print('Opening {0}'.format(extracted_path + subdir + spr_entry.name))
+					with Spr.open(extracted_path + subdir + spr_entry.name) as spr:
+						for frame in spr.frames:
+							print('First pixel of frame: {}'.format(frame.pixels[0]))
+			with os.scandir(extracted_path + subdir) as progs:
+
+				l = [entry for entry in progs if entry.is_file() and entry.name[-4:] == '.mdl']
+				print(l)
+				for mdl_entry in l:
+					print('Opening {0}'.format(extracted_path + subdir + mdl_entry.name))
+					with Mdl.open(extracted_path + subdir + mdl_entry.name) as mdl:
+						for skin in mdl.skins:
+							print('First pixel os skin: {}'.format(skin.pixels[0]))
 	except (FileExistsError, FileNotFoundError, AttributeError) as error:
 		print(error)
+
 	for pak_filename in pak_entries_by_pak:
 
+		
 		path = dir_to_process + '/' + pak_filename[:-4]
+		
 		if os.path.exists(path):
+			print('Cleaning up temp directory {}'.format(path))
 			shutil.rmtree(path)
